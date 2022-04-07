@@ -246,6 +246,8 @@ public class GetAllTransaction {
             filePath = TRANSACTION_FILE_PATH;
         }
 
+        LOGGER.info("init param: qps: {}, filePath: {}", QPS, filePath);
+
         List<GrpcClient> clients = new ArrayList<>();
         //对应 config.conf 的 fullnode.ip.list
         GrpcClient client0 = WalletApi.init(0);
