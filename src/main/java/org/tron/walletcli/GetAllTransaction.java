@@ -37,7 +37,6 @@ public class GetAllTransaction {
 
     public static List<Transaction> transactions = new ArrayList<>();
     private static String TRANSACTION_FILE_PATH = "getTransactions.txt";
-    private static int QPS = 1;
     private static int DEFAULT_QPS = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
@@ -232,12 +231,12 @@ public class GetAllTransaction {
     }
 
     public static void main(String[] args) throws InterruptedException {
-
-        String qps = System.getProperty("qps");
-        if (StringUtils.isEmpty(qps)) {
-            QPS = Integer.parseInt(qps);
+        int qps;
+        String qpsParam = System.getProperty("qps");
+        if (StringUtils.isNoneEmpty(qpsParam)) {
+            qps = Integer.parseInt(qpsParam);
         } else {
-            QPS = DEFAULT_QPS;
+            qps = DEFAULT_QPS;
         }
 
         String filePath = System.getProperty("filePath");
@@ -245,13 +244,13 @@ public class GetAllTransaction {
             filePath = TRANSACTION_FILE_PATH;
         }
 
-        LOGGER.info("init param: qps: {}, filePath: {}", QPS, filePath);
+        LOGGER.info("init param: qps: {}, filePath: {}", qps, filePath);
 
         List<GrpcClient> clients = new ArrayList<>();
         //对应 config.conf 的 fullnode.ip.list
         GrpcClient client0 = WalletApi.init(0);
         clients.add(client0);
-        sendTransaction(clients, filePath, QPS);
+        sendTransaction(clients, filePath, qps);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
     }
 }
