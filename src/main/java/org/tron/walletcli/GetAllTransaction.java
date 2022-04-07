@@ -39,7 +39,7 @@ public class GetAllTransaction {
     private static String TRANSACTION_FILE_PATH = "getTransactions.txt";
     private static int QPS = 1;
     private static int DEFAULT_QPS = 100;
-    private static Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
     private static final int CORE_SIZE = Runtime.getRuntime().availableProcessors();
     private static final int MAX_SIZE = CORE_SIZE + 1;
@@ -234,7 +234,6 @@ public class GetAllTransaction {
     public static void main(String[] args) throws InterruptedException {
 
         String qps = System.getProperty("qps");
-
         if (StringUtils.isEmpty(qps)) {
             QPS = Integer.parseInt(qps);
         } else {

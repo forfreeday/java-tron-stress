@@ -59,7 +59,7 @@ public class Configuration {
         }
       }else {
         config = ConfigFactory.load(configurationPath);
-        logger.info("user defined config file doesn't exists, use default config file in jar");
+        logger.info("user defined config file doesn't exists, use default config file in jar, path: {}", configurationPath);
       }
     }
     return config;
