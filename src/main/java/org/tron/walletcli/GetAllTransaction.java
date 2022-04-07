@@ -1,6 +1,7 @@
 package org.tron.walletcli;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -36,7 +37,7 @@ public class GetAllTransaction {
 
     public static List<Transaction> transactions = new ArrayList<>();
     private static String TRANSACTION_FILE_PATH = "getTransactions.txt";
-    private static int QPS = 0;
+    private static int QPS = 1;
     private static int DEFAULT_QPS = 100;
     private static Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
@@ -232,17 +233,24 @@ public class GetAllTransaction {
 
     public static void main(String[] args) throws InterruptedException {
 
-        if (args != null && args.length > 0) {
-            QPS = Integer.parseInt(args[0]);
+        String qps = System.getProperty("qps");
+
+        if (StringUtils.isEmpty(qps)) {
+            QPS = Integer.parseInt(qps);
         } else {
             QPS = DEFAULT_QPS;
+        }
+
+        String filePath = System.getProperty("filePath");
+        if (StringUtils.isEmpty(filePath)) {
+            filePath = TRANSACTION_FILE_PATH;
         }
 
         List<GrpcClient> clients = new ArrayList<>();
         //对应 config.conf 的 fullnode.ip.list
         GrpcClient client0 = WalletApi.init(0);
         clients.add(client0);
-        sendTransaction(clients, TRANSACTION_FILE_PATH, QPS);
+        sendTransaction(clients, filePath, QPS);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
     }
 }
