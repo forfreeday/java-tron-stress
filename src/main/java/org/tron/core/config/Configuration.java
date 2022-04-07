@@ -57,7 +57,7 @@ public class Configuration {
         } catch (FileNotFoundException e) {
           logger.error("load user defined config file exception: " + e.getMessage());
         }
-      }else {
+      } else {
         config = ConfigFactory.load(configurationPath);
         logger.info("user defined config file doesn't exists, use default config file in jar, path: {}", configFile.getAbsolutePath());
       }
