@@ -49,19 +49,29 @@ public class Configuration {
     }
 
     if (config == null) {
-      File configFile = new File(System.getProperty("user.dir")+'/'+configurationPath);
-      if(configFile.exists()){
-        try {
-          config = ConfigFactory.parseReader(new InputStreamReader(new FileInputStream(configurationPath)));
-          logger.info("use user defined config file in current dir");
-        } catch (FileNotFoundException e) {
-          logger.error("load user defined config file exception: " + e.getMessage());
-        }
-      } else {
+      File configFile = new File(System.getProperty("user.dir") + '/' + configurationPath);
+      if (configFile.exists()) {
+        parseReader(configurationPath);
+        return config;
+      }
+      File projectConfigFile = new File(System.getProperty("user.dir") + '/' + "src/main/resources/" + configurationPath);
+      if (projectConfigFile.exists()) {
+        parseReader(projectConfigFile.getAbsolutePath());
+        return config;
+      } else{
         config = ConfigFactory.load(configurationPath);
         logger.info("user defined config file doesn't exists, use default config file in jar, path: {}", configFile.getAbsolutePath());
       }
     }
     return config;
+  }
+
+  private static void parseReader(String configurationPath) {
+    try {
+      config = ConfigFactory.parseReader(new InputStreamReader(new FileInputStream(configurationPath)));
+      logger.info("use user defined config file in current dir");
+    } catch (FileNotFoundException e) {
+      logger.error("load user defined config file exception: " + e.getMessage());
+    }
   }
 }
