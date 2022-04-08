@@ -41,8 +41,8 @@ public class GetAllTransaction {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
     private static final int CORE_SIZE = Runtime.getRuntime().availableProcessors();
-    private static final int MAX_SIZE = CORE_SIZE + 1;
-    private static final int KEEP_ALIVE_TIME = 10000;
+    private static final int MAX_SIZE = CORE_SIZE * 4 + 1;
+    private static final int KEEP_ALIVE_TIME = 300;
 
     public static Transaction HexStringToTransaction(String HexString) {
         Transaction signedTransaction = null;
@@ -141,24 +141,57 @@ public class GetAllTransaction {
 //
 //    }
 
-    public static void sendTransaction(List<GrpcClient> clients, String filename, int qps) throws InterruptedException {
+
+    public static List<Transaction> getTransactions(String filename, int start, int end) {
         List<Transaction> transactionList = new ArrayList<>();
+        try {
+            InputStreamReader read = new InputStreamReader(new FileInputStream(new File(filename)));
+            BufferedReader reader = new BufferedReader(read);
+            String trx = reader.readLine();
+            if (end > 0) {
+                int count = 0;
+                while (trx != null) {
+                    if (count > start && count <= end) {
+                        transactionList.add(HexStringToTransaction(trx));
+                    }
+                    trx = reader.readLine();
+                    count++;
+                }
+            } else {
+                while (trx != null) {
+                    transactionList.add(HexStringToTransaction(trx));
+                    trx = reader.readLine();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return transactionList;
+    }
+
+
+    public static void sendTransaction(List<GrpcClient> clients, String filename, int qps, Integer start, Integer end) throws InterruptedException {
+        List<Transaction> transactionList = null;
+        try {
+            if (start != null && end != null) {
+                transactionList = getTransactions(filename, start, end);
+            } else {
+                transactionList = getTransaction(filename);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("get transactions error: {}", e.getMessage(), e);
+        }
+
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 CORE_SIZE,
                 MAX_SIZE,
                 KEEP_ALIVE_TIME,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>());
-        try {
-            getTransaction(filename, transactionList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        LOGGER.info("Start send time is " + System.currentTimeMillis());
+        LOGGER.info("Start send time is: " + System.currentTimeMillis());
         // 线程池发送
         for (int i = 0; i < transactionList.size(); i = i + qps ) {
-
             long startTimestamp = System.currentTimeMillis();
             for (int j = i; j < i + qps && j < transactionList.size(); j++) {
                 executor.execute(new MyTask(transactionList.get(j), clients.get(j % clients.size())));
@@ -167,10 +200,10 @@ public class GetAllTransaction {
             if (costTime < 980) {
                 Thread.sleep(980 - costTime);
             } else {
-                LOGGER.info("qps set error!");
+                LOGGER.warn("qps set error!");
             }
         }
-        LOGGER.info("End send time is " + System.currentTimeMillis());
+        LOGGER.info("End send time is: " + System.currentTimeMillis());
 
         int i = 0;
         long progressTaskNum = -1L;
@@ -180,12 +213,13 @@ public class GetAllTransaction {
                 System.exit(1);
             }
             progressTaskNum = executor.getCompletedTaskCount();
-            LOGGER.info(String.valueOf(executor.getCompletedTaskCount()));
+            LOGGER.info("Completed task count: {}" ,executor.getCompletedTaskCount());
         }
 
     }
 
-    private static void getTransaction(String filename, List<Transaction> transactionList) throws IOException {
+    private static List<Transaction> getTransaction(String filename) throws IOException {
+        List<Transaction> transactionList = new ArrayList<>();
         InputStreamReader read = new InputStreamReader(new FileInputStream(new File(filename)));
         BufferedReader reader = new BufferedReader(read);
         String trx = reader.readLine();
@@ -193,17 +227,16 @@ public class GetAllTransaction {
             transactionList.add(HexStringToTransaction(trx));
             trx = reader.readLine();
         }
+        return transactionList;
     }
 
     public static void sendTransaction(List<GrpcClient> clients, String filename) {
 
-        List<Transaction> transactionList = new ArrayList<>();
+        List<Transaction> transactionList = null;
         ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 200, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
-        //ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+                new LinkedBlockingQueue<>());
         try {
-            FileReader fr = new FileReader(filename);
-            getTransaction(filename, transactionList);
+            transactionList = getTransaction(filename);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,6 +263,12 @@ public class GetAllTransaction {
         }
     }
 
+    /**
+     * GrpcClient 对应 config.conf 的 fullnode.ip.list
+     *  多个 FullNode 就添加多个 fullnode.ip.list，通过 GrpcClient 进行初始化
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException {
         int qps;
         String qpsParam = System.getProperty("qps");
@@ -244,13 +283,31 @@ public class GetAllTransaction {
             filePath = TRANSACTION_FILE_PATH;
         }
 
+        String startBlock = System.getProperty("startBlock");
+        Integer start = null;
+        if (StringUtils.isEmpty(startBlock)) {
+            start = Integer.parseInt(startBlock);
+        }
+
+        String endBlock = System.getProperty("endBlock");
+        Integer end = null;
+        if (StringUtils.isEmpty(endBlock)) {
+            end = Integer.parseInt(endBlock);
+            filePath = TRANSACTION_FILE_PATH;
+        }
+
         LOGGER.info("init param: qps: {}, filePath: {}", qps, filePath);
 
         List<GrpcClient> clients = new ArrayList<>();
-        //对应 config.conf 的 fullnode.ip.list
         GrpcClient client0 = WalletApi.init(0);
         clients.add(client0);
-        sendTransaction(clients, filePath, qps);
+
+//        GrpcClient client1 = WalletApi.init(1);
+//        clients.add(client1);
+
+        // 指定高度加载
+
+        sendTransaction(clients, filePath, qps, start, end);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
     }
 }
