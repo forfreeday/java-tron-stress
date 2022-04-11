@@ -296,7 +296,7 @@ public class GetAllTransaction {
             filePath = TRANSACTION_FILE_PATH;
         }
 
-        LOGGER.info("init param: qps: {}, filePath: {}", qps, filePath);
+        LOGGER.info("init param: qps: {}, filePath: {}, start: {}, end: {}", qps, filePath, start, end);
 
         List<GrpcClient> clients = new ArrayList<>();
         GrpcClient client0 = WalletApi.init(0);
