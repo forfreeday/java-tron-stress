@@ -41,7 +41,7 @@ public class GetAllTransaction {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
     private static final int CORE_SIZE = Runtime.getRuntime().availableProcessors();
-    private static final int MAX_SIZE = CORE_SIZE * 8 + 1;
+    private static final int MAX_SIZE = CORE_SIZE * 10 + 1;
     private static final int KEEP_ALIVE_TIME = 300;
 
     public static Transaction HexStringToTransaction(String HexString) {
@@ -191,7 +191,7 @@ public class GetAllTransaction {
 
         LOGGER.info("Start send time is: " + System.currentTimeMillis());
         // 线程池发送
-        for (int i = 0; i < transactionList.size(); i = i + qps ) {
+        for (int i = 0; i < transactionList.size(); i = i + qps) {
             long startTimestamp = System.currentTimeMillis();
             for (int j = i; j < i + qps && j < transactionList.size(); j++) {
                 executor.execute(new MyTask(transactionList.get(j), clients.get(j % clients.size())));
