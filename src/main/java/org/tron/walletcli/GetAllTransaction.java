@@ -41,7 +41,7 @@ public class GetAllTransaction {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllTransaction.class);
 
     private static final int CORE_SIZE = Runtime.getRuntime().availableProcessors();
-    private static final int MAX_SIZE = CORE_SIZE * 4 + 1;
+    private static final int MAX_SIZE = CORE_SIZE * 8 + 1;
     private static final int KEEP_ALIVE_TIME = 300;
 
     public static Transaction HexStringToTransaction(String HexString) {
@@ -285,13 +285,13 @@ public class GetAllTransaction {
 
         String startBlock = System.getProperty("startBlock");
         Integer start = null;
-        if (StringUtils.isEmpty(startBlock)) {
+        if (StringUtils.isNoneEmpty(startBlock)) {
             start = Integer.parseInt(startBlock);
         }
 
         String endBlock = System.getProperty("endBlock");
         Integer end = null;
-        if (StringUtils.isEmpty(endBlock)) {
+        if (StringUtils.isNoneEmpty(endBlock)) {
             end = Integer.parseInt(endBlock);
             filePath = TRANSACTION_FILE_PATH;
         }
