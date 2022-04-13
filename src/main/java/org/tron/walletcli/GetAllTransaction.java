@@ -306,7 +306,6 @@ public class GetAllTransaction {
 //        clients.add(client1);
 
         // 指定高度加载
-
         sendTransaction(clients, filePath, qps, start, end);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
     }
