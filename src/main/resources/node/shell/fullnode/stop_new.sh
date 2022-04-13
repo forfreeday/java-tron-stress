@@ -1,7 +1,7 @@
 #!/bin/bash
 count=1
 while [ $count -le 60 ]; do
-  pid=`ps -ef |grep org.tron.program.FullNode | grep "java-tron-copy/" | grep -v grep |awk '{print $2}'`
+  pid=`ps -ef |grep org.tron.program.FullNode | grep "java-tron/" | grep -v grep |awk '{print $2}'`
   if [ -n "$pid" ]; then
     kill -9 $pid
     echo "kill -15 java-tron, counter $count"
