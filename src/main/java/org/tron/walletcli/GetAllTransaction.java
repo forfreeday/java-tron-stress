@@ -5,33 +5,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-import org.tron.api.GrpcAPI.BlockList;
-import org.tron.api.GrpcAPI.ExchangeList;
-import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.walletserver.GrpcClient;
 import org.tron.walletserver.WalletApi;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class GetAllTransaction {
 
@@ -279,10 +266,12 @@ public class GetAllTransaction {
         }
 
         String filePath = System.getProperty("filePath");
+
         if (StringUtils.isEmpty(filePath)) {
             filePath = TRANSACTION_FILE_PATH;
         }
 
+        LOGGER.info("init filePath: {}", filePath);
         String startBlock = System.getProperty("startBlock");
         Integer start = null;
         if (StringUtils.isNoneEmpty(startBlock)) {
@@ -293,19 +282,37 @@ public class GetAllTransaction {
         Integer end = null;
         if (StringUtils.isNoneEmpty(endBlock)) {
             end = Integer.parseInt(endBlock);
-            filePath = TRANSACTION_FILE_PATH;
         }
 
         LOGGER.info("init param: qps: {}, filePath: {}, start: {}, end: {}", qps, filePath, start, end);
 
+        // 指定高度加载
         List<GrpcClient> clients = new ArrayList<>();
+        //"10.40.100.117:50051",
         GrpcClient client0 = WalletApi.init(0);
         clients.add(client0);
+        //"10.40.100.110:60051",
+        GrpcClient client1 = WalletApi.init(1);
+        clients.add(client1);
+        //"10.40.100.111:60051",
+        GrpcClient client2 = WalletApi.init(2);
+        clients.add(client1);
+        //"10.40.100.115:60051",
+        GrpcClient client3 = WalletApi.init(3);
+        clients.add(client3);
+        //"10.40.100.114:60051",
+        GrpcClient client4 = WalletApi.init(4);
+        clients.add(client4);
+        //"10.40.100.116:60051",
+        GrpcClient client5 = WalletApi.init(5);
+        clients.add(client5);
+        //"10.40.100.117:60051",
+        GrpcClient client6 = WalletApi.init(6);
+        clients.add(client6);
+        //"10.40.100.118:60051",
+        GrpcClient client7 = WalletApi.init(7);
+        clients.add(client7);
 
-//        GrpcClient client1 = WalletApi.init(1);
-//        clients.add(client1);
-
-        // 指定高度加载
         sendTransaction(clients, filePath, qps, start, end);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
     }

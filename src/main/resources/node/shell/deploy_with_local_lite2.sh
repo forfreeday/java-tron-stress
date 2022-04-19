@@ -144,6 +144,10 @@ sendFullNode() {
 sendDuplicateNode() {
   for i in ${duplicateNodeIp[@]}; do
     # copy duplicate node config
+#    ssh -22008 -Tq java-tron@$i <<EOF
+#    exit
+#    EOF
+    ssh -p 22008 java-tron@$i 'mkdir -p /data/databackup/java-tron-copy'
     ssh -p 22008 java-tron@$i 'cd /data/databackup/java-tron-copy && sh /data/databackup/java-tron-copy/stop.sh'
     ssh -p 22008 java-tron@$i "rm -rf /data/databackup/java-tron-copy/output-directory/"
     echo "info: Delete duplicate node file of ${i} completed"
@@ -151,7 +155,6 @@ sendDuplicateNode() {
     echo "info: Copy duplicate node file of ${i} completed"
     scp -P 22008 /data/workspace/replay_workspace/server_workspace/conf/duplicate/start_new_fullnode.sh java-tron@$i:/data/databackup/java-tron/start.sh
     scp -P 22008 /data/workspace/replay_workspace/server_workspace/conf/duplicate/stop_new.sh java-tron@$i:/data/databackup/java-tron/stop.sh
-    ssh -p 22008 java-tron@$i "cp /data/databackup/java-tron/stop.sh /data/databackup/java-tron-copy/"
     ssh -p 22008 java-tron@$i "cp -r /data/databackup/java-tron/java-tron-1.0.0/ /data/databackup/java-tron-copy/"
 
     echo "info: scp duplicate config file"
@@ -159,7 +162,6 @@ sendDuplicateNode() {
     echo "info: Copy duplicate node of ${i} completed"
     echo "info: Copy duplicate database of ${i} completed"
     ssh -p 22008 java-tron@$i 'cp -r /data/databackup/java-tron/liteDatabase/output-directory/ /data/databackup/java-tron-copy/'
-
   done
   wait
 
