@@ -111,7 +111,10 @@ public class WalletApi {
 
   public static GrpcClient init(Integer i) {
     Config config = Configuration.getByPath("config.conf");
+    return init(i, config);
+  }
 
+  public static GrpcClient init(Integer i, Config config) {
     String fullNode = "";
     String solidityNode = "";
     if (config.hasPath("soliditynode.ip.list")) {

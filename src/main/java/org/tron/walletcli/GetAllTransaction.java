@@ -1,10 +1,12 @@
 package org.tron.walletcli;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.typesafe.config.Config;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.core.config.Configuration;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.walletserver.GrpcClient;
 import org.tron.walletserver.WalletApi;
@@ -285,35 +287,46 @@ public class GetAllTransaction {
         }
 
         LOGGER.info("init param: qps: {}, filePath: {}, start: {}, end: {}", qps, filePath, start, end);
-
-        // 指定高度加载
         List<GrpcClient> clients = new ArrayList<>();
-        //"10.40.100.117:50051",
-        GrpcClient client0 = WalletApi.init(0);
-        clients.add(client0);
-        //"10.40.100.110:60051",
-        GrpcClient client1 = WalletApi.init(1);
-        clients.add(client1);
-        //"10.40.100.111:60051",
-        GrpcClient client2 = WalletApi.init(2);
-        clients.add(client1);
-        //"10.40.100.115:60051",
-        GrpcClient client3 = WalletApi.init(3);
-        clients.add(client3);
-        //"10.40.100.114:60051",
-        GrpcClient client4 = WalletApi.init(4);
-        clients.add(client4);
-        //"10.40.100.116:60051",
-        GrpcClient client5 = WalletApi.init(5);
-        clients.add(client5);
-        //"10.40.100.117:60051",
-        GrpcClient client6 = WalletApi.init(6);
-        clients.add(client6);
-        //"10.40.100.118:60051",
-        GrpcClient client7 = WalletApi.init(7);
-        clients.add(client7);
+        String fullNode = System.getProperty("fullNode");
+        if (StringUtils.isNoneEmpty(fullNode)) {
+            int i = Integer.parseInt(fullNode);
+            GrpcClient client = WalletApi.init(i);
+            clients.add(client);
+        } else {
+//            //"10.40.100.117:50051",
+//            GrpcClient client0 = WalletApi.init(0);
+//            clients.add(client0);
+//            //"10.40.100.110:60051",
+//            GrpcClient client1 = WalletApi.init(1);
+//            clients.add(client1);
+//            //"10.40.100.111:60051",
+//            GrpcClient client2 = WalletApi.init(2);
+//            clients.add(client1);
+//            //"10.40.100.115:60051",
+//            GrpcClient client3 = WalletApi.init(3);
+//            clients.add(client3);
+//            //"10.40.100.114:60051",
+//            GrpcClient client4 = WalletApi.init(4);
+//            clients.add(client4);
+//            //"10.40.100.116:60051",
+//            GrpcClient client5 = WalletApi.init(5);
+//            clients.add(client5);
+//            //"10.40.100.117:60051",
+//            GrpcClient client6 = WalletApi.init(6);
+//            clients.add(client6);
+//            //"10.40.100.118:60051",
+//            GrpcClient client7 = WalletApi.init(7);
+//            clients.add(client7);
+            Config config = Configuration.getByPath("config.conf");
+            List<String> fullNodes = config.getStringList("fullnode.ip.list");
+            for (int i = 0; i < fullNodes.size(); i++) {
+                GrpcClient client = WalletApi.init(i);
+                clients.add(client);
+            }
+        }
 
-        sendTransaction(clients, filePath, qps, start, end);
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
+        sendTransaction(clients, filePath, qps, start, end);
     }
 }
