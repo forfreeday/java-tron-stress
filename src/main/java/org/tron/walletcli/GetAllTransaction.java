@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+// java -Dqps=10000 -DfilePath=getTransactions.txt_10000_1212888 -DstartBlock=100 -DendBlock=299999 -DfullNode=0 -jar java-tron-strees
 public class GetAllTransaction {
 
     public static List<Transaction> transactions = new ArrayList<>();
