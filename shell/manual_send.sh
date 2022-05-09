@@ -14,8 +14,6 @@ default_qps=100
 default_filePath=""
 VM_OPTIONS=""
 
-
-
 result_resrver="http://10.40.100.110:50090/"
 result_interface="wallet/getnowblock"
 

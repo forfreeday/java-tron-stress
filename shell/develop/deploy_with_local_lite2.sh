@@ -162,6 +162,7 @@ sendDuplicateNode() {
     echo "info: Copy duplicate node of ${i} completed"
     echo "info: Copy duplicate database of ${i} completed"
     ssh -p 22008 java-tron@$i 'cp -r /data/databackup/java-tron/liteDatabase/output-directory/ /data/databackup/java-tron-copy/'
+
   done
   wait
 
