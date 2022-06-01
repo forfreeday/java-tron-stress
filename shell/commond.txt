@@ -1,0 +1,1 @@
+sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 0 303222 3

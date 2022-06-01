@@ -1,0 +1,9 @@
+-XX:+UseConcMarkSweepGC
+-XX:+PrintGCDetails
+-Xloggc:./gc.log
+-XX:+PrintGCDateStamps
+-XX:+CMSParallelRemarkEnabled
+-XX:ReservedCodeCacheSize=256m
+-XX:+CMSScavengeBeforeRemark
+-XX:NewRatio=2
+-Xms24g -Xmx24g
