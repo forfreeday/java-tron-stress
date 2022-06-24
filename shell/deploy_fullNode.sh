@@ -1,15 +1,27 @@
 #!/bin/bash
+##############################################################
+#
+# 构建java-tron压测环境
+#   1.构建SR节点
+#   2.构建FullNode节点
+#   3.构建FullNode-duplicate 副本节点
+#   4.构建 java-tron-stress 压测客户端
+#
+#
+##############################################################
 
 # 构建参数
-WORKSPACE=/data/java-tron-stress
+WORKSPACE=/data/java-tron-stress1
 javaTronDir=java-tron
 ## 重置分支代码修改
 CLONE_CODE=false
 RESET_CODE=true
 STRESS_GIT_REPOSITORY='https://github.com/forfreeday/java-tron-stress.git'
 TEST_NODE_GIT_REPOSITORY='https://github.com/forfreeday/java-tron-testnode.git'
+JAVA_TRON_GIT_REPOSITORY='https://github.com/tronprotocol/java-tron.git'
 STRESS_PROJECT=java-tron-stress
 TEST_NODE_PROJECT=java-tron-testnode
+JAVA_TRON_PROJECT=java-tron
 ## 特定功能，写在特点分支上，通过指定分支开启功能
 ## 指定使用：低参与度功能
 BRANCH_PARTICIPATION='stress/minParticipation'
@@ -62,6 +74,11 @@ duplicateNodeIp=(
 10.40.100.118
 )
 
+if [[ ! -d $WORKSPACE ]]; then
+  mkdir -p $WORKSPACE
+  cd $WORKSPACE
+fi
+
 cloneCode() {
 #  if [[ $CLONE_CODE ]]; then
 #    if [[ ! -d $WORKSPACE/$javaTronDir ]]; then
@@ -70,52 +87,55 @@ cloneCode() {
 #      echo "info: java-tron is exists."
 #    fi
 #  fi
-
-  if [[ ! -d $TEST_NODE_PROJECT ]]; then
+  if [[ ! -d $WORKSPACE/$TEST_NODE_PROJECT ]]; then
+    cd $WORKSPACE
     git clone $TEST_NODE_GIT_REPOSITORY
-    cd $TEST_NODE_PROJECT
   fi
   $WORKSPACE/$TEST_NODE_PROJECT/gradlew clean build -x test
 
-  if [[ ! -d $STRESS_PROJECT ]]; then
-    git clone $STRESS_PROJECT
-    cd $STRESS_PROJECT
+  if [[ ! -d $WORKSPACE/$STRESS_PROJECT ]]; then
+    #mkdir -p $WORKSPACE/STRESS_PROJECT
+    cd $WORKSPACE/
+    git clone $STRESS_GIT_REPOSITORY
   fi
   $WORKSPACE/$STRESS_PROJECT/gradlew clean build -x test
 
+  if [[ ! -d $WORKSPACE/$JAVA_TRON_PROJECT ]]; then
+      cd $WORKSPACE/
+      git clone $JAVA_TRON_GIT_REPOSITORY
+  fi
 }
 
 # 构建FullNode，禁用部分功能
 buildFullNode() {
 echo 1
-
 }
 
-#buildFullNode() {
-#  echo "info: Start build java-tron"
-#  cd $WORKSPACE/$javaTronDir/
-#  if [[ $RESET_CODE = true ]]; then
-#    git reset --hard origin/master
-#  fi
-#
-#  sed -i "s/for (int i = 1\; i < slot/\/\*for (int i = 1\; i < slot/g" $WORKSPACE/java-tron/consensus/src/main/java/org/tron/consensus/dpos/StatisticManager.java
-#  sed -i "s/consensusDelegate.applyBlock(true)/consensusDelegate.applyBlock(true)\*\//g" $WORKSPACE/server_workspace/java-tron/consensus/src/main/java/org/tron/consensus/dpos/StatisticManager.java
-#  sed -i "s/long headBlockTime = chainBaseManager.getHeadBlockTimeStamp()/\/\*long headBlockTime = chainBaseManager.getHeadBlockTimeStamp()/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
-#  sed -i "s/void validateDup(TransactionCapsule/\*\/\}void validateDup(TransactionCapsule/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
-#  sed -i "s/validateTapos(trxCap)/\/\/validateTapos(trxCap)/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
-#  sed -i "s/validateCommon(trxCap)/\/\/validateCommon(trxCap)/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
-#
-#  sed -i 's/ApplicationFactory.create(context);/ApplicationFactory.create(context);saveNextMaintenanceTime(context);/g' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
-#  sed -i 's/shutdown(appT);/shutdown(appT);mockWitness(context);/g' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
-#  sed -i '$d' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
-#  sed -i "2a `cat $WORKSPACE/build_insert/FullNode_import | xargs`" $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
-#  cat $WORKSPACE/build_insert/FullNode_insert >> $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
-#
-#  sed -i "s/private volatile boolean needSyncFromPeer = true/private volatile boolean needSyncFromPeer = false/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/net/peer/PeerConnection.java
-#  sed -i "s/private volatile boolean needSyncFromUs = true/private volatile boolean needSyncFromUs = false/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/net/peer/PeerConnection.java
-#  # build project
-#  ./gradlew clean build -x test -x check
-#}
+buildFullNode() {
+  echo "info: Start build java-tron"
+  cd $WORKSPACE/$javaTronDir/
+  if [[ $RESET_CODE = true ]]; then
+    git reset --hard origin/master
+  fi
+
+  sed -i "s/for (int i = 1\; i < slot/\/\*for (int i = 1\; i < slot/g" $WORKSPACE/java-tron/consensus/src/main/java/org/tron/consensus/dpos/StatisticManager.java
+  sed -i "s/consensusDelegate.applyBlock(true)/consensusDelegate.applyBlock(true)\*\//g" $WORKSPACE/server_workspace/java-tron/consensus/src/main/java/org/tron/consensus/dpos/StatisticManager.java
+  sed -i "s/long headBlockTime = chainBaseManager.getHeadBlockTimeStamp()/\/\*long headBlockTime = chainBaseManager.getHeadBlockTimeStamp()/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
+  sed -i "s/void validateDup(TransactionCapsule/\*\/\}void validateDup(TransactionCapsule/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
+  sed -i "s/validateTapos(trxCap)/\/\/validateTapos(trxCap)/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
+  sed -i "s/validateCommon(trxCap)/\/\/validateCommon(trxCap)/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/db/Manager.java
+
+  sed -i 's/ApplicationFactory.create(context);/ApplicationFactory.create(context);saveNextMaintenanceTime(context);/g' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
+  sed -i 's/shutdown(appT);/shutdown(appT);mockWitness(context);/g' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
+  sed -i '$d' $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
+  sed -i "2a `cat $WORKSPACE/build_insert/FullNode_import | xargs`" $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
+  cat $WORKSPACE/build_insert/FullNode_insert >> $WORKSPACE/java-tron/framework/src/main/java/org/tron/program/FullNode.java
+
+  sed -i "s/private volatile boolean needSyncFromPeer = true/private volatile boolean needSyncFromPeer = false/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/net/peer/PeerConnection.java
+  sed -i "s/private volatile boolean needSyncFromUs = true/private volatile boolean needSyncFromUs = false/g" $WORKSPACE/java-tron/framework/src/main/java/org/tron/core/net/peer/PeerConnection.java
+  # build project
+  ./gradlew clean build -x test -x check
+}
 
 # 指定配置文件
 setVMOptions() {
@@ -158,11 +178,10 @@ sendWitnessNet() {
   done
   wait
   else
+    # 从中控机远程复制到目标机器
+
     echo 'info: Copy database from localhost'
-
   fi
-
-
 }
 
 sendFullNode() {
@@ -183,7 +202,7 @@ sendFullNode() {
 
 
   for k in $(seq 10); do
-  currentminute=`date +%M | sed -r 's/^0+//'`
+  local currentminute=`date +%M | sed -r 's/^0+//'`
   if [ x"$currentminute" = x"" ] ;then
     break;
   fi;
@@ -222,7 +241,6 @@ sendDuplicateNode() {
     echo "info: Copy duplicate node of ${i} completed"
     echo "info: Copy duplicate database of ${i} completed"
     ssh -p 22008 java-tron@$i 'cp -r /data/databackup/java-tron/liteDatabase/output-directory/ /data/databackup/java-tron-copy/'
-
   done
   wait
 
@@ -233,7 +251,7 @@ sendDuplicateNode() {
   done
 }
 
-cloneCode
+#cloneCode
 buildFullNode
 setVMOptions
 sendWitnessNet

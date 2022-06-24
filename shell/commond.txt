@@ -1,1 +1,4 @@
-sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 0 303222 3
+sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 0 303222 1
+sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 303222 606444 2
+sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 606444 909666 3
+sh manual_send.sh 1000 /tmp/testAllTransaction/getTransactions.txt_10000_1212888 909666 1212888 4
