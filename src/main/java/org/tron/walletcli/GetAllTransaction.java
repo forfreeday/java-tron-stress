@@ -48,89 +48,6 @@ public class GetAllTransaction {
         return Hex.toHexString(trx.toByteArray());
     }
 
-//    public static void fetchTransaction(GrpcClient client, String filename, int startBlockNum,
-//                                        int endBlockNum) {
-//        int step = 100;
-//        Optional<ExchangeList> eList = client.listExchanges();
-//        System.out.println(String.format("提取从%s块～～%s块的交易!", startBlockNum, endBlockNum));
-//        for (int i = startBlockNum; i < endBlockNum; i = i + step) {
-//            Optional<BlockList> result = client.getBlockByLimitNext(i, i + step);
-//            if (result.isPresent()) {
-//                BlockList blockList = result.get();
-//                if (blockList.getBlockCount() > 0) {
-//                    for (Block block : blockList.getBlockList()) {
-//                        if (block.getTransactionsCount() > 0) {
-//                            transactions.addAll(block.getTransactionsList());
-//                        }
-//                    }
-//                }
-//            }
-//            LOGGER.info(String.format("已提取%s块～～%s块的交易!", i, i + step));
-//        }
-//
-//        System.out.println("总交易数量：" + transactions.size());
-//        transactions = transactions.stream().filter(new Predicate<Transaction>() {
-//            @Override
-//            public boolean test(Transaction transaction) {
-//                ContractType type = transaction.getRawData().getContract(0).getType();
-//                return type == ContractType.TransferContract
-//                        || type == ContractType.TransferAssetContract
-//                        || type == ContractType.AccountCreateContract
-//                        || type == ContractType.VoteAssetContract
-//                        || type == ContractType.AssetIssueContract
-//                        || type == ContractType.ParticipateAssetIssueContract
-//                        || type == ContractType.FreezeBalanceContract
-//                        || type == ContractType.UnfreezeBalanceContract
-//                        || type == ContractType.UnfreezeAssetContract
-//                        || type == ContractType.UpdateAssetContract
-//                        || type == ContractType.ProposalCreateContract
-//                        || type == ContractType.ProposalApproveContract
-//                        || type == ContractType.ProposalDeleteContract
-//                        || type == ContractType.SetAccountIdContract
-//                        || type == ContractType.CustomContract
-//                        || type == ContractType.CreateSmartContract
-//                        || type == ContractType.TriggerSmartContract
-//                        || type == ContractType.ExchangeCreateContract
-//                        || type == ContractType.UpdateSettingContract
-//                        || type == ContractType.ExchangeInjectContract
-//                        || type == ContractType.ExchangeWithdrawContract
-//                        || type == ContractType.ExchangeTransactionContract
-//                        || type == ContractType.UpdateEnergyLimitContract
-//                        ;
-//            }
-//        }).collect(Collectors.toList());
-//        LOGGER.info("满足交易数量：" + transactions.size());
-//
-//        try {
-//            long t2 = System.currentTimeMillis();
-//            LOGGER.info("开始向文件写入交易数据，请稍后...");
-//            FileWriter fw = new FileWriter(filename, true); //the true will append the new data
-//
-//            OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(new File(filename)));
-//            BufferedWriter writer = new BufferedWriter(write);
-//
-//            transactions.parallelStream().forEachOrdered(new Consumer<Transaction>() {
-//                @Override
-//                public void accept(Transaction trx) {
-//                    try {
-//                        writer.write(TransactionToHexString(trx) + System.lineSeparator());
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            });
-//            writer.flush();
-//            write.close();
-//            writer.close();
-//
-//            LOGGER.info("交易数据写入完成，文件名称：" + filename);
-//            LOGGER.info("写入文件花费" + (System.currentTimeMillis() - t2) + "ms");
-//        } catch (IOException ioe) {
-//            System.err.println("IOException: " + ioe.getMessage());
-//        }
-//
-//    }
-
 
     public static List<Transaction> getTransactions(String filename, int start, int end) {
         List<Transaction> transactionList = new ArrayList<>();
@@ -295,30 +212,6 @@ public class GetAllTransaction {
             GrpcClient client = WalletApi.init(i);
             clients.add(client);
         } else {
-//            //"10.40.100.117:50051",
-//            GrpcClient client0 = WalletApi.init(0);
-//            clients.add(client0);
-//            //"10.40.100.110:60051",
-//            GrpcClient client1 = WalletApi.init(1);
-//            clients.add(client1);
-//            //"10.40.100.111:60051",
-//            GrpcClient client2 = WalletApi.init(2);
-//            clients.add(client1);
-//            //"10.40.100.115:60051",
-//            GrpcClient client3 = WalletApi.init(3);
-//            clients.add(client3);
-//            //"10.40.100.114:60051",
-//            GrpcClient client4 = WalletApi.init(4);
-//            clients.add(client4);
-//            //"10.40.100.116:60051",
-//            GrpcClient client5 = WalletApi.init(5);
-//            clients.add(client5);
-//            //"10.40.100.117:60051",
-//            GrpcClient client6 = WalletApi.init(6);
-//            clients.add(client6);
-//            //"10.40.100.118:60051",
-//            GrpcClient client7 = WalletApi.init(7);
-//            clients.add(client7);
             Config config = Configuration.getByPath("config.conf");
             List<String> fullNodes = config.getStringList("fullnode.ip.list");
             for (int i = 0; i < fullNodes.size(); i++) {
@@ -326,7 +219,6 @@ public class GetAllTransaction {
                 clients.add(client);
             }
         }
-
         //将历史交易重放到测试环境下，测试节点取消交易验证和Tapos验证
         sendTransaction(clients, filePath, qps, start, end);
     }

@@ -29,15 +29,6 @@ testWitness=(
 10.40.100.116
 )
 
-#testnet=(
-#10.40.100.110
-#10.40.100.111
-#10.40.100.114
-#10.40.100.115
-#10.40.100.116
-#10.40.100.117
-#)
-
 if [ ! -d $local_stress_project ]; then
   git clone $repository
   cd $local_stress_project
@@ -68,6 +59,12 @@ fi
 if [ -n "$4" ]; then
   VM_OPTIONS="$VM_OPTIONS -DendBlock=$4 "
 fi
+
+if [ -n "$5" ]; then
+  VM_OPTIONS="$VM_OPTIONS -DfullNode=$4 "
+fi
+
+
 
 runJavaTronStress() {
   export replayStartNum=`curl -s -X POST $result_resrver$result_interface | jq .block_header.raw_data.number`
