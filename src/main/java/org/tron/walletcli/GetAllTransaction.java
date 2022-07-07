@@ -173,8 +173,7 @@ public class GetAllTransaction {
     /**
      * GrpcClient 对应 config.conf 的 fullnode.ip.list
      *  多个 FullNode 就添加多个 fullnode.ip.list，通过 GrpcClient 进行初始化
-     * @param args
-     * @throws InterruptedException
+     * @throws InterruptedException interrupted
      */
     public static void main(String[] args) throws InterruptedException {
         int qps;
@@ -192,16 +191,16 @@ public class GetAllTransaction {
         }
 
         LOGGER.info("init filePath: {}", filePath);
-        String startBlock = System.getProperty("startBlock");
+        String startParam = System.getProperty("start");
         Integer start = null;
-        if (StringUtils.isNoneEmpty(startBlock)) {
-            start = Integer.parseInt(startBlock);
+        if (StringUtils.isNoneEmpty(startParam)) {
+            start = Integer.parseInt(startParam);
         }
 
-        String endBlock = System.getProperty("endBlock");
+        String endParam = System.getProperty("end");
         Integer end = null;
-        if (StringUtils.isNoneEmpty(endBlock)) {
-            end = Integer.parseInt(endBlock);
+        if (StringUtils.isNoneEmpty(endParam)) {
+            end = Integer.parseInt(endParam);
         }
 
         LOGGER.info("init param: qps: {}, filePath: {}, start: {}, end: {}", qps, filePath, start, end);
