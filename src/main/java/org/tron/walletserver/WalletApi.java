@@ -20,6 +20,8 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -95,7 +97,7 @@ public class WalletApi {
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
   private static int rpcVersion = 0;
 
-  private static GrpcClient rpcCli = init(3);
+  private static GrpcClient rpcCli = init(0);
 
 //  static {
 //    new Timer().schedule(new TimerTask() {
@@ -121,7 +123,13 @@ public class WalletApi {
       solidityNode = config.getStringList("soliditynode.ip.list").get(i);
     }
     if (config.hasPath("fullnode.ip.list")) {
-      fullNode = config.getStringList("fullnode.ip.list").get(i);
+      List<String> stringList = config.getStringList("fullnode.ip.list");
+      if (CollectionUtils.isNotEmpty(stringList)) {
+        fullNode = stringList.get(i);
+      } else {
+       logger.warn("not gRPC client in list");
+       return null;
+      }
     }
     if (config.hasPath("net.type") && "mainnet".equalsIgnoreCase(config.getString("net.type"))) {
       WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
